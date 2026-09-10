@@ -32,6 +32,7 @@ import { injectCover } from "./cover-inject";
 import { renderMermaidPng } from "./mermaid-renderer";
 
 const PAGE_WIDTH_CM = 21;
+const PORTRAIT_ASPECT_RATIO = 1.2;
 const FALLBACK_PNG_1X1 = Uint8Array.from([
   137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0,
   0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120,
@@ -744,9 +745,13 @@ function renderImage(
 
   const contentWidthCm =
     PAGE_WIDTH_CM - template.page.marginLeftCm - template.page.marginRightCm;
-  const widthCm = Math.min(template.image.maxWidthCm, contentWidthCm);
-  const widthPx = Math.round(widthCm * 37.795);
   const aspectRatio = asset.widthPx && asset.heightPx ? asset.heightPx / asset.widthPx : 0.62;
+  const maxWidthCm = Math.min(template.image.maxWidthCm, contentWidthCm);
+  // 竖图按高度约束优先：先以可读的页内高度确定尺寸，再保持原始比例。
+  const widthCm = aspectRatio >= PORTRAIT_ASPECT_RATIO
+    ? Math.min(maxWidthCm, template.image.maxHeightCm / aspectRatio)
+    : maxWidthCm;
+  const widthPx = Math.round(widthCm * 37.795);
 
   return new Paragraph({
     style: "ImageParagraph",

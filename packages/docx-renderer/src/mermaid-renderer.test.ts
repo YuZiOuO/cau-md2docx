@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cauCoursePaperTemplate } from "@md2doc/template-core";
-import { detectMermaidDiagramType, renderMermaidPng } from "./mermaid-renderer";
+import { detectMermaidDiagramType, fitMermaidLabelLines, renderMermaidPng } from "./mermaid-renderer";
 
 describe("Mermaid renderer", () => {
   it("detects the diagram types used by the course-paper sample", () => {
@@ -18,6 +18,12 @@ describe("Mermaid renderer", () => {
     expect(Array.from(png.data.slice(0, 8))).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
     expect(png.widthPx).toBeGreaterThan(100);
     expect(png.heightPx).toBeGreaterThan(50);
+  });
+
+  it("wraps converted HTML labels within the Mermaid node height", () => {
+    const lines = fitMermaidLabelLines("这是一个很长的节点标签，需要自动换行且不能超出框体", 90, 54);
+    expect(lines).toHaveLength(2);
+    expect(lines.join("")).toBe("这是一个很长的节点标签，需要自动换行且不能超出框体");
   });
 
   it.each([

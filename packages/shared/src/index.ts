@@ -49,6 +49,8 @@ export interface ImageStyle {
   layout: "inline" | "top-bottom-wrap";
   alignment: Alignment;
   maxWidthCm: number;
+  /** 图片高于宽时使用的最大显示高度，避免按最大宽度放大后跨越整页。 */
+  maxHeightCm: number;
   spacingBeforePt: number;
   spacingAfterPt: number;
 }

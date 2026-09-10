@@ -135,10 +135,56 @@ function createSvgTextLabel(attributes: string, label: string): string {
   const y = readSvgNumber(attributes, "y");
   const width = readSvgNumber(attributes, "width");
   const height = readSvgNumber(attributes, "height");
-  const lines = label.replace(/<br\s*\/?\s*>/giu, "\n").replace(/<[^>]+>/gu, "").trim().split(/\n+/u);
+  const lines = fitMermaidLabelLines(
+    decodeHtml(label.replace(/<br\s*\/?\s*>/giu, "\n").replace(/<[^>]+>/gu, "").trim()),
+    width,
+    height
+  );
   const middleX = x + width / 2;
-  const firstY = y + height / 2 - ((lines.length - 1) * 9);
-  return `<text x="${middleX}" y="${firstY}" text-anchor="middle" dominant-baseline="middle">${lines.map((line, index) => `<tspan x="${middleX}" dy="${index === 0 ? 0 : 18}">${escapeXml(line.trim())}</tspan>`).join("")}</text>`;
+  const lineHeight = Math.min(18, Math.max(10, (height - 6) / lines.length));
+  const firstY = y + height / 2 - ((lines.length - 1) * lineHeight / 2);
+  const textLength = Math.max(1, width - 10);
+  const capacity = Math.max(1, Math.floor(textLength / 15));
+  return `<text x="${middleX}" y="${firstY}" text-anchor="middle" dominant-baseline="middle">${lines.map((line, index) => {
+    const fit = line.length > capacity ? ` textLength="${textLength}" lengthAdjust="spacingAndGlyphs"` : "";
+    return `<tspan x="${middleX}" dy="${index === 0 ? 0 : lineHeight}"${fit}>${escapeXml(line)}</tspan>`;
+  }).join("")}</text>`;
+}
+
+/** Keep converted foreignObject labels inside their Mermaid node bounds. */
+export function fitMermaidLabelLines(label: string, width: number, height: number): string[] {
+  const sourceLines = label.split(/\n+/u).map((line) => line.trim()).filter(Boolean);
+  const maxLines = Math.max(1, Math.floor(Math.max(1, height - 6) / 18));
+  const capacity = Math.max(1, Math.floor(Math.max(1, width - 10) / 15));
+  const wrapped = sourceLines.flatMap((line) => wrapLabelLine(line, capacity));
+  if (wrapped.length <= maxLines) return wrapped.length ? wrapped : [""];
+
+  // Preserve all text. The final line is horizontally condensed by textLength if needed.
+  const head = wrapped.slice(0, maxLines - 1);
+  return [...head, wrapped.slice(maxLines - 1).join("")];
+}
+
+function wrapLabelLine(line: string, capacity: number): string[] {
+  const words = line.includes(" ") ? line.split(/\s+/u) : Array.from(line);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const separator = current && line.includes(" ") ? " " : "";
+    if (current && current.length + separator.length + word.length > capacity) {
+      lines.push(current);
+      current = word;
+    } else {
+      current += separator + word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function decodeHtml(value: string): string {
+  return value.replace(/&(amp|lt|gt|quot|apos|#39);/giu, (_match, entity: string) => ({
+    amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'"
+  })[entity.toLowerCase()]!);
 }
 
 function readSvgNumber(attributes: string, name: string): number {

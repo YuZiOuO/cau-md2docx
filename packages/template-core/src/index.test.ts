@@ -47,6 +47,7 @@ describe("template core", () => {
     expect(imported.codeBlock.fontFamily).toBe("Times New Roman");
     expect(imported.codeBlock.fontSizePt).toBe(10.5);
     expect(imported.codeBlock.widthCm).toBe(14.64);
+    expect(imported.image.maxHeightCm).toBe(16);
     expect(imported.abstractTitle.alignment).toBe("justify");
     expect(imported.abstractTitle.bold).toBe(true);
     expect(imported.styles.abstract.firstLineIndentChars).toBe(0);

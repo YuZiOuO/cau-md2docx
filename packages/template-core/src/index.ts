@@ -111,6 +111,7 @@ export const cauCoursePaperTemplate: FormatTemplate = {
     layout: "inline",
     alignment: "center",
     maxWidthCm: 14.64,
+    maxHeightCm: 16,
     spacingBeforePt: 6,
     spacingAfterPt: 0
   },
@@ -253,6 +254,9 @@ export function validateTemplate(template: unknown): FormatTemplateValidationRes
     errors.push("模板缺少表格字号。");
   }
   if (!item.image) errors.push("模板缺少图片样式。");
+  if (item.image && typeof item.image.maxHeightCm !== "number") {
+    errors.push("模板缺少图片最大高度。");
+  }
   if (!item.codeBlock) errors.push("模板缺少代码块样式。");
   if (item.codeBlock && (!item.codeBlock.fontFamily || typeof item.codeBlock.fontFamily !== "string")) {
     errors.push("模板缺少代码块字体。");

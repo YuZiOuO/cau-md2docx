@@ -44,6 +44,23 @@ describe("renderDocx", () => {
     expect(documentXml).not.toContain("wrapTopAndBottom");
   });
 
+  it("uses the height limit first for clearly portrait images", async () => {
+    const model: DocumentModel = { nodes: [{ type: "image", alt: "竖图", url: "portrait.png" }] };
+    const bytes = await renderDocx({
+      model,
+      template: cauCoursePaperTemplate,
+      assets: [{
+        path: "portrait.png", fileName: "portrait.png", mimeType: "image/png", data: png1x1,
+        widthPx: 800, heightPx: 1600
+      }]
+    });
+    const zip = await JSZip.loadAsync(bytes);
+    const documentXml = await zip.file("word/document.xml")!.async("string");
+
+    // 16 cm high portrait image retains its 1:2 aspect ratio, so it is about 8 cm wide.
+    expect(documentXml).toContain('cx="2876550" cy="5753100"');
+  });
+
   it("writes three-line table borders", async () => {
     const model: DocumentModel = {
       nodes: [{ type: "table", caption: "表 1 测试表", rows: [["列 A", "列 B"], ["1", "2"]] }]

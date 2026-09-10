@@ -427,6 +427,9 @@ export function TemplateEditor({ template, onChange }: Props) {
           {numberField("图片最大宽 cm", template.image.maxWidthCm, readonly, (value) =>
             patch({ image: { ...template.image, maxWidthCm: value } })
           )}
+          {numberField("竖图最大高 cm", template.image.maxHeightCm, readonly, (value) =>
+            patch({ image: { ...template.image, maxHeightCm: value } })
+          )}
           {numberField("图片段前 pt", template.image.spacingBeforePt, readonly, (value) =>
             patch({ image: { ...template.image, spacingBeforePt: value } })
           )}
