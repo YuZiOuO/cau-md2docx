@@ -853,9 +853,11 @@ function createStyles(template: FormatTemplate) {
   return {
     paragraphStyles: [
       paragraphStyle("TitleStyle", "论文标题", template.styles.title, template),
-      paragraphStyle("Heading1Style", "一级标题", template.styles.heading1, template),
-      paragraphStyle("Heading2Style", "二级标题", template.styles.heading2, template),
-      paragraphStyle("Heading3Style", "三级标题", template.styles.heading3, template),
+      // 自定义样式不会自动获得 Word 的大纲级别。显式标记后，标题会同时
+      // 出现在导航窗格/大纲视图中，并保持与目录相同的层级关系。
+      paragraphStyle("Heading1Style", "一级标题", template.styles.heading1, template, 0),
+      paragraphStyle("Heading2Style", "二级标题", template.styles.heading2, template, 1),
+      paragraphStyle("Heading3Style", "三级标题", template.styles.heading3, template, 2),
       paragraphStyle("BodyText", "正文", template.styles.body, template),
       paragraphStyle("AbstractTitle", "摘要标题", template.abstractTitle, template),
       paragraphStyle("AbstractText", "摘要正文", template.styles.abstract, template),
@@ -982,7 +984,13 @@ function imageParagraphStyle(template: FormatTemplate): ParagraphStyle {
   };
 }
 
-function paragraphStyle(id: string, name: string, style: ParagraphStyle, template: FormatTemplate) {
+function paragraphStyle(
+  id: string,
+  name: string,
+  style: ParagraphStyle,
+  template: FormatTemplate,
+  outlineLevel?: number
+) {
   return {
     id,
     name,
@@ -1000,6 +1008,7 @@ function paragraphStyle(id: string, name: string, style: ParagraphStyle, templat
       }
     },
     paragraph: {
+      outlineLevel,
       alignment: toDocxAlignment(style.alignment),
       spacing: {
         before: style.spacingBeforePt ? Math.round(style.spacingBeforePt * 20) : undefined,

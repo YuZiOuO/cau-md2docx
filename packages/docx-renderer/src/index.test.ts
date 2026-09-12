@@ -154,6 +154,26 @@ describe("renderDocx", () => {
     expect(documentXml).toContain("二 第二个一级标题");
   });
 
+  it("marks custom heading styles with Word outline levels", async () => {
+    const bytes = await renderDocx({
+      model: {
+        nodes: [
+          { type: "heading", depth: 2, text: "一级标题" },
+          { type: "heading", depth: 3, text: "二级标题" },
+          { type: "heading", depth: 4, text: "三级标题" }
+        ]
+      },
+      template: cauCoursePaperTemplate,
+      assets: []
+    });
+    const zip = await JSZip.loadAsync(bytes);
+    const stylesXml = await zip.file("word/styles.xml")!.async("string");
+
+    expect(extractStyle(stylesXml, "Heading1Style")).toContain('w:outlineLvl w:val="0"');
+    expect(extractStyle(stylesXml, "Heading2Style")).toContain('w:outlineLvl w:val="1"');
+    expect(extractStyle(stylesXml, "Heading3Style")).toContain('w:outlineLvl w:val="2"');
+  });
+
   it("renders abstract and keywords with dedicated styles", async () => {
     const model: DocumentModel = {
       nodes: [
