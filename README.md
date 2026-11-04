@@ -2,7 +2,17 @@
 
 一个 Markdown 到 DOCX 整理工具，面向中国农业大学课程论文等校内论文格式场景。当前版本提供网页应用、命令行脚本和单 HTML 离线网页版；网页中的解析、图片读取和 Word 生成都在浏览器本地完成，不依赖服务端。
 
-## 交给 Agent 的命令行处理提示词
+# 快速开始
+
+您可以使用任意 npm 生态的包管理器(npm/pnpm/bun):
+```
+npx skills add HuLunTunTao/cau-md2docx --global
+```
+
+或者手动拷贝 skill/SKILL.md 到您需要的位置。
+
+<details>
+<summary>希望手动将提示词复制给Agent？展开查看(<code>skill/SKILL.md</code>）</summary>
 
 将人工撰写的报告初稿和原始图片材料提供给能够读写文件、执行命令的 Agent 后，可直接使用下面的提示词让其整理并生成 Word 文档：
 
@@ -75,6 +85,8 @@ flowchart TD
     node md2doc-cli.mjs input.zip -o output.docx --template toc-template.json
 5. 完成后提供生成的 .docx 文件，并说明 Markdown 文件、图片目录、zip 文件和 Word 文件的位置；说明 Mermaid 图表已转换为 PNG（或列出保留为代码块的图表）。如果图片缺失或材料存在无法确认的内容，请明确列出，不要自行补造。
 ````
+
+</details>
 
 ## 功能概览
 
